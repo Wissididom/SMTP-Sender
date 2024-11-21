@@ -4,13 +4,17 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "check-format": "prettier --check .",
+    "format": "prettier --write ."
   },
   "author": "Wissididom",
   "license": "MIT",
   "description": "",
   "dependencies": {
-    "dotenv": "^16.4.5",
-    "nodemailer": "^6.9.16"
+    "dotenv": "^16.4.5"
+  },
+  "devDependencies": {
+    "prettier": "^3.3.3"
   }
 }
