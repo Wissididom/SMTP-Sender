@@ -74,6 +74,7 @@ async function sendMail(
     client.setNoDelay(true);
     client.on("data", (data) => {
       const strData = data.toString();
+      console.log(`Server sent: ${strData}`);
       if (strData.startsWith("220 ")) {
         // service ready
         console.log("Send HELO");
