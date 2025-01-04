@@ -1,6 +1,7 @@
 import "dotenv/config";
 import { resolveMx } from "node:dns";
 import { Socket } from "node:net";
+import { randomUUID } from "node:crypto";
 
 let acknowledgedRequest = "";
 
@@ -120,7 +121,7 @@ async function sendMail(
         // start mail input
         console.log("Send body");
         client.write(
-          `From: <${senderEmail}>\r\nTo: <${receiverEmail}>\r\nSubject: ${subject}\r\nDate: ${getSMTPDate()}\r\n\r\n${body}\r\n.\r\n`,
+          `From: <${senderEmail}>\r\nTo: <${receiverEmail}>\r\nSubject: ${subject}\r\nDate: ${getSMTPDate()}\r\nMessage-ID: <${randomUUID()}@${emailDomain}>\r\n\r\n${body}\r\n.\r\n`,
         );
       } else if (strData.startsWith("221 ")) {
         // closing channel
