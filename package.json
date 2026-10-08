@@ -12,9 +12,9 @@
   "license": "MIT",
   "description": "",
   "dependencies": {
-    "dotenv": "^18.0.5"
+    "dotenv": "^18.0.6"
   },
   "devDependencies": {
-    "prettier": "^3.5.0"
+    "prettier": "^3.9.9"
   }
 }
