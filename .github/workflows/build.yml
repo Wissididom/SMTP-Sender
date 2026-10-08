@@ -31,7 +31,7 @@ jobs:
         run: |
           deno compile -o SMTP-Sender-${{ matrix.os }}.exe -EN main.ts
       - name: Compile (Ubuntu and Mac)
-        if: startsWith(matrix.os, 'ubuntu') && startsWith(matrix.os, 'macos')
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         run: |
           deno compile -o SMTP-Sender-${{ matrix.os }} -EN main.ts
       - name: Upload artifact (Windows)
@@ -40,8 +40,8 @@ jobs:
         with:
           name: SMTP-Sender-${{ matrix.os }}
           path: SMTP-Sender-${{ matrix.os }}.exe
-      - name: Upload artifact (Ubuntu)
-        if: startsWith(matrix.os, 'ubuntu')
+      - name: Upload artifact (Ubuntu and Mac)
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
         uses: actions/upload-artifact@v7
         with:
           name: SMTP-Sender-${{ matrix.os }}
