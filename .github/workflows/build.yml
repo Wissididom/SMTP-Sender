@@ -1,0 +1,89 @@
+name: Deno Build
+
+permissions:
+  "contents": "write"
+
+on:
+  push:
+    branches: ["master", "main"]
+  pull_request:
+    branches: ["master", "main"]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: ["macos-latest", "ubuntu-latest", "windows-latest"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+      - name: Setup Deno
+        uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Install dependencies
+        run: |
+          deno install
+      - name: Compile (Windows)
+        if: startsWith(matrix.os, 'windows')
+        run: |
+          deno compile -o SMTP-Sender-${{ matrix.os }}.exe -EN main.ts
+      - name: Compile (Ubuntu and Mac)
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        run: |
+          deno compile -o SMTP-Sender-${{ matrix.os }} -EN main.ts
+      - name: Upload artifact (Windows)
+        if: startsWith(matrix.os, 'windows')
+        uses: actions/upload-artifact@v7
+        with:
+          name: SMTP-Sender-${{ matrix.os }}
+          path: SMTP-Sender-${{ matrix.os }}.exe
+      - name: Upload artifact (Ubuntu and Mac)
+        if: startsWith(matrix.os, 'ubuntu') || startsWith(matrix.os, 'macos')
+        uses: actions/upload-artifact@v7
+        with:
+          name: SMTP-Sender-${{ matrix.os }}
+          path: SMTP-Sender-${{ matrix.os }}
+  create-release:
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main')
+
+    steps:
+      - uses: actions/checkout@v7
+        name: Checkout Code
+
+      - uses: actions/download-artifact@v8
+        name: Download artifacts
+        with:
+          path: release-artifacts/
+          merge-multiple: true
+
+      - name: Rename Windows Binary
+        run: mv release-artifacts/SMTP-Sender-windows-latest.exe release-artifacts/SMTP-Sender-Windows.exe
+
+      - name: Rename Linux Binary
+        run: mv release-artifacts/SMTP-Sender-ubuntu-latest release-artifacts/SMTP-Sender-Linux
+
+      - name: Rename Mac Binary
+        run: mv release-artifacts/SMTP-Sender-macos-latest release-artifacts/SMTP-Sender-MacOS
+
+      - name: Create release
+        uses: ncipollo/release-action@v1.21.0
+        with:
+          replacesArtifacts: true
+          allowUpdates: true
+          artifactErrorsFailBuild: true
+          artifacts: "release-artifacts/*"
+          body: ${{ github.event.head_commit.message }}
+          prerelease: true
+          name: Nightly Release
+          tag: nightly-build
+
+      - name: Update nightly-build tag
+        run: |
+          git tag -f nightly-build
+          git push -f origin nightly-build
+        shell: bash

@@ -1,5 +1,5 @@
-import "dotenv/config";
-import { resolveMx } from "node:dns";
+//import { resolveMx } from "node:dns";
+import { resolveMx } from "node:dns/promises";
 import { Socket } from "node:net";
 import { randomUUID } from "node:crypto";
 
@@ -40,13 +40,15 @@ const getSMTPDate = () => {
     "0",
   );
   const offsetMinutes = String(absOffsetMinutes % 60).padStart(2, "0");
-  const timezoneOffset = `${timezoneOffsetMinutes <= 0 ? "+" : "-"}${offsetHours}${offsetMinutes}`;
+  const timezoneOffset = `${
+    timezoneOffsetMinutes <= 0 ? "+" : "-"
+  }${offsetHours}${offsetMinutes}`;
 
   return `${day}, ${date} ${month} ${year} ${hours}:${minutes}:${seconds} ${timezoneOffset}`;
 };
 
-async function getMxRecord(domain) {
-  return new Promise((resolve, reject) => {
+async function getMxRecord(domain: string): Promise<string> {
+  /*return await new Promise<string>((resolve, reject) => {
     resolveMx(domain, (err, addresses) => {
       if (err) {
         return reject("Error fetching MX records");
@@ -58,15 +60,21 @@ async function getMxRecord(domain) {
         reject("No MX record found");
       }
     });
-  });
+  });*/
+  const addresses = await resolveMx(domain);
+  if (addresses.length === 0) {
+    throw new Error("No MX record found");
+  }
+  addresses.sort((a, b) => a.priority - b.priority);
+  return addresses[0].exchange;
 }
 
 async function sendMail(
-  senderEmail,
-  receiverEmail,
-  subject,
-  body,
-  emailDomain,
+  senderEmail: string,
+  receiverEmail: string,
+  subject: string,
+  body: string,
+  emailDomain: string,
 ) {
   const domain = receiverEmail.split("@")[1];
   try {
@@ -147,9 +155,9 @@ async function sendMail(
 }
 
 await sendMail(
-  process.env.SENDER_EMAIL,
-  process.env.RECEIVER_EMAIL,
-  process.env.EMAIL_SUBJECT,
-  process.env.EMAIL_BODY,
-  process.env.EMAIL_DOMAIN,
+  Deno.env.get("SENDER_EMAIL") ?? "sender@example.com",
+  Deno.env.get("RECEIVER_EMAIL") ?? "receiver@example.com",
+  Deno.env.get("EMAIL_SUBJECT") ?? "Subject",
+  Deno.env.get("EMAIL_BODY") ?? "Body",
+  Deno.env.get("EMAIL_DOMAIN") ?? "wissididom.invalid",
 );
