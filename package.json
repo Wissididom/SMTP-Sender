@@ -11,7 +11,7 @@
     "url": "git+https://github.com/Wissididom/SMTP-Sender.git"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "main.ts",
   "scripts": {
     "start": "node main.ts"
   },
