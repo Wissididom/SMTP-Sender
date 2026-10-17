@@ -1,3 +1,4 @@
+import "dotenv/config";
 //import { resolveMx } from "node:dns";
 import { resolveMx } from "node:dns/promises";
 import { Socket } from "node:net";
@@ -155,9 +156,9 @@ async function sendMail(
 }
 
 await sendMail(
-  Deno.env.get("SENDER_EMAIL") ?? "sender@example.com",
-  Deno.env.get("RECEIVER_EMAIL") ?? "receiver@example.com",
-  Deno.env.get("EMAIL_SUBJECT") ?? "Subject",
-  Deno.env.get("EMAIL_BODY") ?? "Body",
-  Deno.env.get("EMAIL_DOMAIN") ?? "wissididom.invalid",
+  process.env.SENDER_EMAIL ?? "sender@example.com",
+  process.env.RECEIVER_EMAIL ?? "receiver@example.com",
+  process.env.EMAIL_SUBJECT ?? "Subject",
+  process.env.EMAIL_BODY ?? "Body",
+  process.env.EMAIL_DOMAIN ?? "wissididom.invalid",
 );
