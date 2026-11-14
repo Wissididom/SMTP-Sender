@@ -16,6 +16,6 @@
     "start": "node main.ts"
   },
   "dependencies": {
-    "dotenv": "^18.0.8"
+    "dotenv": "^18.0.10"
   }
 }
